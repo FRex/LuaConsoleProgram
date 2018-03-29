@@ -115,12 +115,23 @@ static int demo_setConsoleSize(lua_State * L)
     return 0;
 }
 
+static int demo_setPrettifier(lua_State * L)
+{
+    lua_settop(L, 1);
+    blua::LuaConsoleModel * model = blua::LuaConsoleModel::getFromRegistry(L);
+    if(model)
+        model->setPrintEvalPrettifier(L);
+
+    return 0;
+}
+
 const luaL_Reg demoReg[] = {
     {"rainbowEcho", &demo_rainbowEcho},
     {"setTitle", &demo_setTitle},
     {"echoColored", &demo_echoColored},
     {"setConsoleColor", &demo_setConsoleColor},
     {"setConsoleSize", &demo_setConsoleSize},
+    {"setPrettifier", &demo_setPrettifier },
     {0x0, 0x0}
 };
 

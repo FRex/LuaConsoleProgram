@@ -3,6 +3,8 @@ An example program using my LuaConsole lib: [link](https://github.com/FRex/LuaCo
 
 Controls are the same as listed in the README there becuase this program uses the SFML input (and display) classes.
 
+It also pretty prints values (see screenshots below) using pprint library by jagt: [link](https://github.com/jagt/pprint.lua).
+
 Here is a 32 bit Windows exe: [link](https://ln.sync.com/dl/b2b4a5900/dhhqd842-n268qvr8-nq7cgx2c-r55z9jzv).
 
 # Screenshots

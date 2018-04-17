@@ -29,7 +29,7 @@ const unsigned colors[] = {
     0x000000FF //black
 };
 
-const unsigned kColorsCount = sizeof (colors) / sizeof (colors[0]);
+const unsigned kColorsCount = sizeof(colors) / sizeof(colors[0]);
 
 //echo using a different color for each character
 
@@ -135,7 +135,7 @@ const luaL_Reg demoReg[] = {
     {0x0, 0x0}
 };
 
-void openDemo(lua_State * L)
+static void openDemo(lua_State * L)
 {
     lua_newtable(L);
     //we do reg manually because
@@ -151,7 +151,7 @@ void openDemo(lua_State * L)
     lua_setglobal(L, "demo");
 }
 
-void quitcallback(blua::LuaConsoleModel * model, void * data)
+static void quitcallback(blua::LuaConsoleModel * model, void * data)
 {
     (void)model;
     sf::RenderWindow * app = static_cast<sf::RenderWindow*>(data);
@@ -163,7 +163,6 @@ int main()
     //do that because we are gonna be using rand() in the demo functions
     std::srand(std::time(0x0));
     sf::RenderWindow app(sf::VideoMode(890u, 520u), "LuaConsole");
-    app.setFramerateLimit(30u);
 
     //open our state, as usual, open demo table in it too
     lua_State * L = luaL_newstate();
@@ -189,19 +188,29 @@ int main()
     //but not the layouting, which is handled by model
     blua::LuaSFMLConsoleView view;
 
-    while(app.isOpen())
-    {
-        sf::Event eve;
-        while(app.pollEvent(eve))
-        {
-            if(eve.type == sf::Event::Closed)
-                app.close();
+    sf::Event eve;
+    eve.type = sf::Event::GainedFocus; //for first run of do while
+    unsigned dirtiness = 0u;
 
-            //send even to console model via the input helper class
-            //this returns a bool saying whether or not the event was
-            //consumed by console but we dont care about it here
-            input.handleEvent(eve);
-        }
+    //this is a very unusual event loop, first we do one run with a fake
+    //gained focus event, from there on we only use waitEvent to not loop
+    //unnecessarily, we also only draw when dirtyness changes
+    //there is also no need for a while is open loop
+    do
+    {
+        if(eve.type == sf::Event::Closed)
+            app.close();
+
+        //send event to console model via the input helper class
+        //this returns a bool saying whether or not the event was
+        //consumed by console but we dont care about it here
+        input.handleEvent(eve);
+
+        //only continue and redraw when there is a dirtiness change
+        if(model.getDirtyness() == dirtiness)
+            continue;
+
+        dirtiness = model.getDirtyness();
         app.clear();
 
         //pull all changes of characters, colors, etc. from the model
@@ -210,7 +219,9 @@ int main()
 
         //draw the view with usual syntax, since it inherits from sf::Drawable
         app.draw(view);
+
         app.display();
-    }
+    } while(app.waitEvent(eve));
+
     lua_close(L);
 }

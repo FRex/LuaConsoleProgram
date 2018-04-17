@@ -15,4 +15,6 @@ function printf(format, ...) --just for convinence
     oldecho(format:format(...))
 end
 
+print = echo
+
 return true --return false or nothing to not show console on init

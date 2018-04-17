@@ -158,7 +158,7 @@ static void quitcallback(blua::LuaConsoleModel * model, void * data)
     app->close();
 }
 
-int main()
+int main(int argc, char ** argv)
 {
     //do that because we are gonna be using rand() in the demo functions
     std::srand(std::time(0x0));
@@ -176,8 +176,20 @@ int main()
     //on each attempt to write or complete code, telling you you forgot to set it
     model.setL(L);
 
+    //try to run each of the input files
+    for(int i = 1; i < argc; ++i)
+    {
+        if(luaL_dofile(L, argv[i]))
+        {
+            const char * errstr = lua_tostring(L, -1);
+            const unsigned errcol = model.getColor(blua::ECC_ERROR);
+            model.echoColored(errstr, errcol);
+        }//if
+        lua_settop(L, 0);
+    }//for
+
     //add a callback to showcase quit command and callbacks
-    model.setCallback(blua::ECT_QUIT, quitcallback, &app);
+    model.setCallback(blua::ECT_QUIT, &quitcallback, &app);
 
     //create the input which will filter and translate sf::Event s
     //into calls to model api functions that move the cursor, type characters etc.

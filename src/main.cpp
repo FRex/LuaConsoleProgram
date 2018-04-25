@@ -162,7 +162,7 @@ int main(int argc, char ** argv)
 {
     //do that because we are gonna be using rand() in the demo functions
     std::srand(std::time(0x0));
-    sf::RenderWindow app(sf::VideoMode(890u, 520u), "LuaConsole");
+    sf::RenderWindow app(sf::VideoMode(1280u, 768u), "LuaConsole", sf::Style::Titlebar | sf::Style::Close);
 
     //open our state, as usual, open demo table in it too
     lua_State * L = luaL_newstate();
@@ -171,6 +171,8 @@ int main(int argc, char ** argv)
 
     //create our model
     blua::LuaConsoleModel model;
+    model.setTitle("BLuaConsole");
+    model.setConsoleSize(117u, 37u);
 
     //tell it which console it has to handle, if you forget you get clear errors
     //on each attempt to write or complete code, telling you you forgot to set it
@@ -199,6 +201,11 @@ int main(int argc, char ** argv)
     //pointer to it, this class handles the font and drawing itself,
     //but not the layouting, which is handled by model
     blua::LuaSFMLConsoleView view;
+
+    //a translate transform to make console fit the window area better
+    //without any black pixels to the top and left of it
+    sf::Transform tr;
+    tr.translate(-3.f, -4.f);
 
     sf::Event eve;
     eve.type = sf::Event::GainedFocus; //for first run of do while
@@ -230,7 +237,7 @@ int main(int argc, char ** argv)
         view.geoRebuild(&model);
 
         //draw the view with usual syntax, since it inherits from sf::Drawable
-        app.draw(view);
+        app.draw(view, tr);
 
         app.display();
     } while(app.waitEvent(eve));
